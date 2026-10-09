@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://zirupdf.zirulab.org/sitemap.xml

@@ -1,0 +1,5 @@
+网站设计：2.1.21；软件安装包：2.1.42。
+将本包中的文件与文件夹上传到 GitHub 网站仓库根目录并覆盖同名文件，不要把整个外层文件夹上传成子目录。
+保留已有 GitHub Releases 2.1.42 及安装包附件，不要删除发布。
+下载配置在 assets/js/config.js；软件更新信息在根目录 version.json。
+本包不含 EXE；最新 Release 必须包含 ZiruPDF_Setup_2.1.42.exe。
