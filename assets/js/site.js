@@ -2,12 +2,17 @@
   /* Release info comes from ONE place: /version.json (also read by the desktop app's update check).
      Pages only carry data-* hooks; no version, file name or download link is written in HTML. */
   const cfg = window.ZIRUPDF_CONFIG || {};
-  const repo = cfg.githubRepo || "sugkp112/ZiruPDF";
-  const releasesUrl = `https://github.com/${repo}/releases/latest`;
-
-  document.querySelectorAll("[data-release-url]").forEach(a => a.href = releasesUrl);
-  document.querySelectorAll("[data-download-url]").forEach(a => { if (a.getAttribute("href") === "#") a.href = releasesUrl; });
-  document.querySelectorAll("[data-github-repo]").forEach(el => el.textContent = repo);
+  // Downloads are served only from the verified URL in /version.json.
+  // Never silently send visitors to a source-code hosting service.
+  document.querySelectorAll("[data-download-url]").forEach(a => {
+    if (a.closest(".d-top")) {
+      a.removeAttribute("href");
+      a.setAttribute("aria-disabled", "true");
+      a.setAttribute("title", "Installer temporarily unavailable");
+      a.style.pointerEvents = "none";
+      a.style.opacity = "0.55";
+    }
+  });
 
   // Page language from <html lang>: zh-CN / ja / en (see /zh/, /ja/, /en/).
   const lang = (document.documentElement.lang || "zh").slice(0, 2).toLowerCase();
@@ -45,10 +50,24 @@
         if (wrap) wrap.hidden = !v;
       });
       document.querySelectorAll("[data-version]").forEach(el => el.textContent = version);
-      // Direct download only when url, version and installer name agree; otherwise the official Releases page.
+      // Allow download only when a verified HTTPS installer URL matches the release metadata.
       const url = String(m.url || ""), file = url.split("/").pop();
       const consistent = /^https:\/\//.test(url) && file.includes(version) && (!m.installer || file === m.installer);
-      document.querySelectorAll("[data-download-url]").forEach(a => a.href = consistent ? url : releasesUrl);
+      document.querySelectorAll("[data-download-url]").forEach(a => {
+        if (!a.closest(".d-top")) return; // Homepage links to the public download page.
+        if (consistent) {
+          a.href = url;
+          a.removeAttribute("aria-disabled");
+          a.removeAttribute("title");
+          a.style.pointerEvents = "";
+          a.style.opacity = "";
+        } else {
+          a.removeAttribute("href");
+          a.setAttribute("aria-disabled", "true");
+          a.style.pointerEvents = "none";
+          a.style.opacity = "0.55";
+        }
+      });
       showState("ready");
     })
     .catch(() => showState("error"));
